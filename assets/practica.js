@@ -58,29 +58,33 @@ accesoEvento(user1);
 **/
 
 class User {
-    constructor(tieneEntrada, esVIP, estaEnListaNegra, vieneConAdulto, edad){
-        this.tieneEntrada = tieneEntrada;
-        this.esVIP = esVIP;
-        this.estaEnListaNegra = estaEnListaNegra;
-        this.vieneConAdulto = vieneConAdulto;
-        this.edad = edad;
+    constructor(tieneEntrada, esVIP, estaEnListaNegra, vieneConAdulto, edad, rol){
+        this.rol               = rol;
+        this.tieneEntrada      = tieneEntrada;
+        this.esVIP             = esVIP;
+        this.estaEnListaNegra  = estaEnListaNegra;
+        this.vieneConAdulto    = vieneConAdulto;
+        this.edad              = edad;
     }
 }
 
 function accesoEvento (user) {
-    let nuncaEntra = user.estaEnListaNegra || user.edad <= 16;
-    let esVip = user.esVIP;
-    let validarUser = (user.edad >= 18 || user.vieneConAdulto) && user.tieneEntrada; 
+    let nuncaEntra   = user.estaEnListaNegra || user.edad < 16 || user.rol === 'baneado';
+    let siempreEntra = user.esVIP || user.rol === 'admin';
+    let validarUser  = (user.edad >= 18 || user.vieneConAdulto) && user.tieneEntrada; 
+    let validarStaff = user.rol === 'staff' && !user.estaEnListaNegra;
+
+    let noEntro = false;
 
     if (nuncaEntra){
         console.log('No puede ingresar');
-    } else if (esVip || validarUser) {
+    } else if (siempreEntra || validarUser || validarStaff) {
         console.log('Puede ingresar');
     } else {
         console.log('No puede ingresar');
     }
 }
 
-const user1 = new User(true, false, false, false, 24);
+const user1 = new User(true, false, false, false, 24, 'staff');
 
 accesoEvento(user1);

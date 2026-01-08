@@ -14,6 +14,8 @@ function saberSiPar(valoresPredeterminados) {
 
 console.log(saberSiPar([7, 8, 9, 10, 15, 16]));
 
+--------------------------------------------------------------------------
+
 let valoresPredeterminados = [];
 
 function contarMayoresQueDiez (valoresPredeterminados) {
@@ -30,7 +32,11 @@ function contarMayoresQueDiez (valoresPredeterminados) {
 
 console.log(contarMayoresQueDiez([1, 10 , 10, 24, 10, 5]));
 
+-------------------------------------------------------------------------------------
+
 (10 > 20) ? console.log("Es mayor") : console.log("Es menor")
+
+-------------------------------------------------------------------------------------
 
 
 class User {
@@ -55,7 +61,7 @@ const user1 = new User(true, false, false, false, 24);
 
 accesoEvento(user1);
 
-**/
+------------------------------------------------------------------------------------------------------
 
 class User {
     constructor(tieneEntrada, esVIP, estaEnListaNegra, vieneConAdulto, edad, rol){
@@ -88,3 +94,5 @@ function accesoEvento (user) {
 const user1 = new User(true, false, false, false, 24, 'staff');
 
 accesoEvento(user1);
+
+**/

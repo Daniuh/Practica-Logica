@@ -5,7 +5,6 @@
     - Si tiene membresía premium → puede acceder a libros especiales sin importar edad
     - Profesores → pueden acceder siempre
     - Estudiantes → pueden acceder a libros normales, y a especiales solo si tienen membresía premium
- */
 
 class Usuario {
     constructor(nombre, rol, edad, tieneMembresiaPrem){
@@ -82,4 +81,80 @@ const libro3   = new Libro('La vuelta al mundo en 80 días', true, 17);
 const resultado3 = puedeAcceder(usuario3, libro3);
 console.log(resultado3);
 
+ */
 
+/***
+ * Reglas de prioridad (MUY IMPORTANTE)
+    - Si está baneado → NO puede reservar nunca
+    - Admin → puede reservar siempre, aunque no haya cupo
+    - Staff → puede reservar si hay cupo
+    - Usuario normal →
+    - solo puede reservar si hay cupo y solo en horario permitido
+    - Si no hay cupo → nadie reserva (excepto admin)
+
+ * Horarios permitidos para usuarios normales:
+    08:00 a 20:00
+    Staff y Admin no tienen restricción de horario.
+ */
+
+class Usuario {
+    constructor(nombre, rol, estaBaneado, horaDeseada){
+        this.nombre      = nombre;
+        this.rol         = rol;
+        this.estaBaneado = estaBaneado;
+        this.horaDeseada = horaDeseada;
+    }
+}
+
+class Sala {
+    constructor(nombre, cupoMaximo){
+        this.nombre           = nombre;
+        this.cupoMaximo       = cupoMaximo;
+        this.reservasActuales = 2;
+    }
+}
+
+function puedeReservar (usuario, sala){
+    let nuncaReserva       = usuario.estaBaneado;
+    let hayCupo          = sala.reservasActuales < sala.cupoMaximo;
+    let horario            = usuario.horaDeseada >=8 && usuario.horaDeseada <= 20; 
+    let validarUsuarioHora = horario;
+
+    let mensajeBan         = {permitido: false, motivo: `Lo sentimos ${usuario.nombre}, pero estás baneado, revisa el motivo y solicita el desbaneo para poder volver a reservar.`};
+    let mensajeApro        = {permitido: true, motivo: `Felicidades ${usuario.nombre}, su reserva esta lista, recuerde estar 5 min antes de la hora reservada.`};
+    let mensajeCupo        = {permitido: false, motivo: `Lo sentimos ${usuario.nombre}, pero actualmente las salas están ocupadas, intentelo de nuevo más tarde.`};
+    let mensajeUsuarioHora = {permitido: false, motivo: `Lo sentimos ${usuario.nombre}, pero la hora elegida no está dentro del horario permitido.`};
+
+    if(nuncaReserva){return mensajeBan;}
+
+    switch (usuario.rol) {
+        case 'staff':
+            if(hayCupo){
+                return mensajeApro;
+            } else{
+                return mensajeCupo;
+            }
+        
+        case 'admin':
+            return mensajeApro;
+    
+        case 'usuario normal':
+            if(!hayCupo){
+                return mensajeCupo;
+            } else if(validarUsuarioHora){
+                return mensajeApro;
+            } else{
+                return mensajeUsuarioHora;
+            }
+
+        default:
+            console.log(`Lo sentimos pero ${usuario.rol}, no es un rol existente en nuestras instalaciones`)
+            break;
+    }
+}
+
+const usuario1 = new Usuario('Geraldine', 'usuario normal', false, 10);
+
+const sala1 = new Sala('Sala Video Juegos', 4);
+
+console.log(puedeReservar(usuario1, sala1));

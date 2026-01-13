@@ -95,7 +95,7 @@ console.log(resultado3);
  * Horarios permitidos para usuarios normales:
     08:00 a 20:00
     Staff y Admin no tienen restricción de horario.
- */
+ 
 
 class Usuario {
     constructor(nombre, rol, estaBaneado, horaDeseada){
@@ -141,10 +141,10 @@ function puedeReservar (usuario, sala){
         case 'usuario normal':
             if(!hayCupo){
                 return mensajeCupo;
-            } else if(validarUsuarioHora){
-                return mensajeApro;
-            } else{
+            } else if(!validarUsuarioHora){
                 return mensajeUsuarioHora;
+            } else{
+                return mensajeApro;
             }
 
         default:
@@ -158,3 +158,111 @@ const usuario1 = new Usuario('Geraldine', 'usuario normal', false, 10);
 const sala1 = new Sala('Sala Video Juegos', 4);
 
 console.log(puedeReservar(usuario1, sala1));
+
+*/
+
+/**
+ * Bloqueos
+    - Si el usuario está bloqueado → NO puede pedir nunca
+    - Si el pedido supera el saldo → NO se aprueba
+   ADMIN
+    - Puede aprobar cualquier pedido
+    - Ignora saldo
+    - Ignora horario pico
+   EMPLEADO
+    - Puede pedir solo si:
+        - hay saldo suficiente
+        - NO es horario pico
+   CLIENTE
+    - Puede pedir solo si:
+        - hay saldo suficiente
+        - el total es <= 50 
+        - NO es horario pico
+ */
+
+class Usuario {
+    constructor(nombre, rol, estaBloqueado, saldo) {
+        this.nombre        = nombre;
+        this.rol           = rol;
+        this.estaBloqueado = estaBloqueado;
+        this.saldo         = saldo;
+    }
+}
+
+class Pedido {
+    constructor(total, esHoraPico) {
+        this.total      = total;
+        this.esHoraPico = esHoraPico;
+        this.estado     = 'pendiente';
+    }
+}
+
+function procesarPedido(usuario, pedido) {
+    let usuarioBloq          = usuario.estaBloqueado;
+    let saldoInsuficiente    = pedido.total > usuario.saldo;
+    let esHoraPico           = pedido.esHoraPico;
+    let totalEsMayor         = pedido.total > 50;
+
+    function pedidoAprobado(pedido) {pedido.estado = 'aprobado';}
+    function pedidoRechazado(pedido) {pedido.estado = 'rechazado';}
+    
+    //let mensajeAprovado  = {estado: 'Aprovado', motivo: `Muchas gracias ${usuario.nombre} por realizar el pedido, en breves será despachado.`};
+    
+    //let mensajeBloqueado   = {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero se encuentra su usuario bloqueado, pongase en contacto con servicio al cliente.`};
+    //let mensajeEsHoraPico  = {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero en estos momentos nos encontramos en horario pico, intentelo de nuevo más tarde`};
+    //let mensajeSaldoInsu   = {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero su cuenta se encuentra en estos momentos sin saldo, lo invitamos a que la recargue para poder proceder con el pedido.`};
+    //let mensajeTotalMayor  = {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero el pedido es mayor que $50, intente de nuevo con productos igual o inferior al valor $50.`};
+    //let mensajeRolNoExiste = {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero el usuario indicado no existe, verifique su usuario antes de intentar hacer un pedido.`};
+
+    switch (usuario.rol) {
+        case 'admin':
+            if(usuarioBloq){
+                pedidoRechazado(pedido);
+                return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero se encuentra su usuario bloqueado, pongase en contacto con servicio al cliente.`};
+            }
+            pedidoAprobado(pedido);
+            return {estado: 'Aprovado', motivo: `Muchas gracias ${usuario.nombre} por realizar el pedido, en breves será despachado.`};
+        case 'empleado':
+            if(usuarioBloq){
+                pedidoRechazado(pedido);
+                return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero se encuentra su usuario bloqueado, pongase en contacto con servicio al cliente.`};
+            }
+            if(saldoInsuficiente){
+                pedidoRechazado(pedido);
+                return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero su cuenta se encuentra en estos momentos sin saldo, lo invitamos a que la recargue para poder proceder con el pedido.`};   
+            }
+            if(esHoraPico){
+                pedidoRechazado(pedido);
+                return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero en estos momentos nos encontramos en horario pico, intentelo de nuevo más tarde`};;
+            }
+            pedidoAprobado(pedido);
+            return {estado: 'Aprovado', motivo: `Muchas gracias ${usuario.nombre} por realizar el pedido, en breves será despachado.`};
+        case 'cliente':
+            if(usuarioBloq){
+                pedidoRechazado(pedido);
+                return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero se encuentra su usuario bloqueado, pongase en contacto con servicio al cliente.`};
+            }
+            if(totalEsMayor){
+                pedidoRechazado(pedido);
+                return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero el pedido es mayor que $50, intente de nuevo con productos igual o inferior al valor $50.`};
+            }
+            if(saldoInsuficiente){
+                pedidoRechazado(pedido);
+                return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero su cuenta se encuentra en estos momentos sin saldo, lo invitamos a que la recargue para poder proceder con el pedido.`};
+            }
+            if(esHoraPico){
+                pedidoRechazado(pedido);
+                return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero en estos momentos nos encontramos en horario pico, intentelo de nuevo más tarde`};;
+            }
+            pedidoAprobado(pedido);
+            return {estado: 'Aprovado', motivo: `Muchas gracias ${usuario.nombre} por realizar el pedido, en breves será despachado.`};
+        default:
+            pedidoRechazado(pedido);
+            return {estado: 'Rechazado', motivo: `Lo sentimos ${usuario.nombre}, pero el usuario indicado no existe, verifique su usuario antes de intentar hacer un pedido.`};
+    }
+}
+
+const usuario1 = new Usuario('Emily', 'cliente', false, 55);
+const pedido1  = new Pedido(45, true);
+
+console.log(procesarPedido(usuario1, pedido1));

@@ -178,7 +178,7 @@ console.log(puedeReservar(usuario1, sala1));
         - hay saldo suficiente
         - el total es <= 50 
         - NO es horario pico
- */
+ 
 
 class Usuario {
     constructor(nombre, rol, estaBloqueado, saldo) {
@@ -266,3 +266,100 @@ const usuario1 = new Usuario('Emily', 'cliente', false, 55);
 const pedido1  = new Pedido(45, true);
 
 console.log(procesarPedido(usuario1, pedido1));
+
+*/
+
+/**
+ * Versión con objetos literales y funcion factory
+ */
+
+function usuario(nombre, rol, estaBloqueado, saldo){
+    return {
+        nombre,
+        rol,
+        estaBloqueado,
+        saldo,
+        activo: true
+    }
+}
+
+function pedido(total, esHoraPico){
+    return{
+        total,
+        esHoraPico,
+        activo: true
+    }
+}
+
+const roles = {
+    admin: {
+        ignora: ['horario', 'saldo', 'valorPedido']
+    },
+    empleado: {
+        ignora: ['valorPedido']
+    },
+    cliente: {
+        ignora: []
+    } 
+}
+
+const validaciones = {
+    bloqueado: {
+        nombre: 'bloqueado',
+        validar: (mid) => mid.usuario.estaBloqueado,
+        mensaje: (mid) => `Lo sentimos ${mid.usuario.nombre}, pero usted se encuentra bloqueado, debido a esto no puede realizar pedidos.`
+    },
+    saldo: {
+        nombre: 'saldo',
+        validar: (mid) => mid.pedido.total > mid.usuario.saldo,
+        mensaje: (mid) => `Lo sentimos ${mid.usuario.nombre}, pero su saldo es inferior al total del pedido que desea realizar, recargue su cuenta para poder realizar el pago.`
+    },
+    horario: {
+        nombre: 'horario',
+        validar: (mid) => mid.pedido.esHoraPico,
+        mensaje: (mid) => `Lo sentimos ${mid.usuario.nombre}, pero en estos momentos nos encontramos en una alta demanda por lo que podemos procesar su pedido, intente de nuevo más tarde.`
+    },
+    valorPedido: {
+        nombre: 'valorPedido',
+        validar: (mid) => mid.pedido.total > 50,
+        mensaje: (mid) => `Lo sentimos ${mid.usuario.nombre}, pero su pedido no puede superar el monto de $50.`
+    }
+}
+
+function obtenerReglasPorRol(rol) {
+    const ignoradas = roles[rol].ignora;
+
+    return Object.values(validaciones).filter(
+        validar => !ignoradas.includes(validar.nombre)
+    )
+}
+
+function procesarReglas(mid, validaciones) {
+    for( const regla of validaciones){
+        if(regla.validar(mid)) {
+            return {
+                permitido: false,
+                motivo: regla.mensaje(mid)
+            };
+        }
+    }
+
+    return {
+        permitido: true,
+        motivo: `Felicidades ${mid.usuario.nombre}, su pedido fue aprobado y ya está siendo preparado, gracias por su compra.`
+    }
+}
+
+const usuario1 = usuario('Geraldine', 'admin', true, 45);
+const pedido1  = pedido(40, true);
+
+const mid = {
+    usuario: usuario1, 
+    pedido: pedido1
+};
+
+const reglasAplicables = obtenerReglasPorRol(usuario1.rol);
+
+const resultado = procesarReglas(mid, reglasAplicables);
+
+console.log(resultado);

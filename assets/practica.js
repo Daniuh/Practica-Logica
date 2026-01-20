@@ -96,3 +96,9 @@ const user1 = new User(true, false, false, false, 24, 'staff');
 accesoEvento(user1);
 
 **/
+let i, x = '';
+for (i = 0; i < 5; i = i + 2) {
+  x += i;
+  console.log(x);
+}
+// TODO: Proceder lecciones uniendo los diferentes ciclos para ir practicando y mejorar el glosario de Js en la lógica.

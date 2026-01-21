@@ -95,10 +95,63 @@ const user1 = new User(true, false, false, false, 24, 'staff');
 
 accesoEvento(user1);
 
-**/
+
 let i, x = '';
 for (i = 0; i < 5; i = i + 2) {
   x += i;
   console.log(x);
 }
-// TODO: Proceder lecciones uniendo los diferentes ciclos para ir practicando y mejorar el glosario de Js en la lógica.
+**/
+//DONE: Proceder lecciones uniendo los diferentes ciclos para ir practicando y mejorar el glosario de Js en la lógica.
+
+const notificaciones = {
+  bienvenida: {
+    nombre: 'bienvenida',
+    validar: (ctx) => ctx.esNuevo,
+    mensaje: (ctx) => `Bienvenido ${ctx.nombre}`
+  },
+  saldoBajo: {
+    nombre: 'saldoBajo',
+    validar: (ctx) => ctx.saldo < 10,
+    mensaje: (ctx) => `Tu saldo es bajo: ${ctx.saldo}`
+  },
+  premium: {
+    nombre: 'premium',
+    validar: (ctx) => ctx.esPremium,
+    mensaje: (ctx) => `Gracias por ser usuario premium`
+  }
+};
+
+const ctx = {
+  nombre: 'Geraldine',
+  saldo: 5,
+  esNuevo: true,
+  esPremium: true
+};
+
+function procesarNotificaciones(ctx) {
+  const lista = Object.values(notificaciones);
+  const listaValidos = [];
+
+  for (const notificacion of lista) {
+    if (notificacion.validar(ctx)) {
+        listaValidos.push(notificacion.mensaje(ctx));
+    }
+  }
+
+  if(listaValidos.length === 0){
+    return {
+    mostrar: false,
+    mensaje: 'Sin notificaciones'
+  };
+  }
+
+  return {
+    mostrar: true,
+    mensaje: listaValidos
+  };
+}
+
+console.log(procesarNotificaciones(ctx));
+
+//TODO: Profundizar en el reto y aumentar la dificultad

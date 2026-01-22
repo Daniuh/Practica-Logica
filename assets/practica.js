@@ -101,24 +101,27 @@ for (i = 0; i < 5; i = i + 2) {
   x += i;
   console.log(x);
 }
-**/
+
 //DONE: Proceder lecciones uniendo los diferentes ciclos para ir practicando y mejorar el glosario de Js en la lógica.
 
 const notificaciones = {
   bienvenida: {
-    nombre: 'bienvenida',
+    nombre:  'bienvenida',
     validar: (ctx) => ctx.esNuevo,
-    mensaje: (ctx) => `Bienvenido ${ctx.nombre}`
+    mensaje: (ctx) => `Bienvenido ${ctx.nombre}`,
+    bloquea: []
   },
   saldoBajo: {
-    nombre: 'saldoBajo',
+    nombre:  'saldoBajo',
     validar: (ctx) => ctx.saldo < 10,
-    mensaje: (ctx) => `Tu saldo es bajo: ${ctx.saldo}`
+    mensaje: (ctx) => `Tu saldo es bajo: ${ctx.saldo}`,
+    bloquea: ['bienvenida']
   },
   premium: {
-    nombre: 'premium',
+    nombre:  'premium',
     validar: (ctx) => ctx.esPremium,
-    mensaje: (ctx) => `Gracias por ser usuario premium`
+    mensaje: (ctx) => `Gracias por ser usuario premium`,
+    bloquea: []
   }
 };
 
@@ -130,12 +133,13 @@ const ctx = {
 };
 
 function procesarNotificaciones(ctx) {
-  const lista = Object.values(notificaciones);
-  const listaValidos = [];
+  const lista            = Object.values(notificaciones);
+  const listaValidos     = [];
+  const listaNoValidos   = [];
 
   for (const notificacion of lista) {
     if (notificacion.validar(ctx)) {
-        listaValidos.push(notificacion.mensaje(ctx));
+        listaValidos.push(notificacion);
     }
   }
 
@@ -148,10 +152,38 @@ function procesarNotificaciones(ctx) {
 
   return {
     mostrar: true,
-    mensaje: listaValidos
+    mensajes: listaValidos,
+    mensajesOmitidos: listaNoValidos
   };
 }
 
 console.log(procesarNotificaciones(ctx));
 
+**/
+
 //TODO: Profundizar en el reto y aumentar la dificultad
+
+const reglas = {
+  esMayor: (ctx) => ctx.edad >= 18,
+  tieneSaldo: (ctx) => ctx.saldo > 0
+};
+
+const ctx = {
+  edad: 20,
+  saldo: 50
+};
+
+function reglasPasan(ctx) {
+    const regla = Object.values(reglas);
+
+    let contadorCumplidas = 0;
+
+    for (const r of regla) {
+        if(r(ctx)){
+            contadorCumplidas++
+        }
+    }
+    console.log(contadorCumplidas);
+}
+
+reglasPasan(ctx);

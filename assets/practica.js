@@ -101,6 +101,7 @@ for (i = 0; i < 5; i = i + 2) {
   x += i;
   console.log(x);
 }
+**/
 
 //DONE: Proceder lecciones uniendo los diferentes ciclos para ir practicando y mejorar el glosario de Js en la lógica.
 
@@ -132,13 +133,25 @@ const ctx = {
   esPremium: true
 };
 
-function procesarNotificaciones(ctx) {
+function filtrarBloqueados() {
+    const array      = Object.values(notificaciones);
+    const bloqueados = [];
+
+    for (const bloqueado of array) {
+        if(bloqueado.bloquea.length){
+            bloqueados.push(...bloqueado.bloquea)
+        }
+    }
+
+    return bloqueados
+}
+
+function procesarNotificaciones(ctx, bloqueados) {
   const lista            = Object.values(notificaciones);
   const listaValidos     = [];
-  const listaNoValidos   = [];
 
   for (const notificacion of lista) {
-    if (notificacion.validar(ctx)) {
+    if (notificacion.validar(ctx) && !bloqueados.includes(notificacion.nombre)) {
         listaValidos.push(notificacion);
     }
   }
@@ -152,17 +165,19 @@ function procesarNotificaciones(ctx) {
 
   return {
     mostrar: true,
-    mensajes: listaValidos,
-    mensajesOmitidos: listaNoValidos
+    mensajes: listaValidos
   };
 }
 
-console.log(procesarNotificaciones(ctx));
+const bloquedos = filtrarBloqueados();
 
-**/
+console.log(procesarNotificaciones(ctx, bloquedos));
+
+
 
 //TODO: Profundizar en el reto y aumentar la dificultad
 
+/**
 const reglas = {
   esMayor: (ctx) => ctx.edad >= 18,
   tieneSaldo: (ctx) => ctx.saldo > 0
@@ -187,3 +202,4 @@ function reglasPasan(ctx) {
 }
 
 reglasPasan(ctx);
+*/

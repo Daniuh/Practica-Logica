@@ -128,17 +128,17 @@ const notificaciones = {
 
 const ctx = {
   nombre: 'Geraldine',
-  saldo: 5,
+  saldo: 11,
   esNuevo: true,
   esPremium: true
 };
 
-function filtrarBloqueados() {
+function filtrarBloqueados(ctx) {
     const array      = Object.values(notificaciones);
     const bloqueados = [];
 
     for (const bloqueado of array) {
-        if(bloqueado.bloquea.length){
+        if(bloqueado.bloquea.length && bloqueado.validar(ctx)){
             bloqueados.push(...bloqueado.bloquea)
         }
     }
@@ -156,20 +156,12 @@ function procesarNotificaciones(ctx, bloqueados) {
     }
   }
 
-  if(listaValidos.length === 0){
-    return {
-    mostrar: false,
-    mensaje: 'Sin notificaciones'
-  };
-  }
-
-  return {
-    mostrar: true,
-    mensajes: listaValidos
-  };
+  return listaValidos.length 
+    ? {mostrar: true, mensajes: listaValidos}
+    : {mostrar: false, mensajes: 'Sin notificaciones'}
 }
 
-const bloquedos = filtrarBloqueados();
+const bloquedos = filtrarBloqueados(ctx);
 
 console.log(procesarNotificaciones(ctx, bloquedos));
 

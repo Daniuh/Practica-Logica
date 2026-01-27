@@ -101,7 +101,7 @@ for (i = 0; i < 5; i = i + 2) {
   x += i;
   console.log(x);
 }
-**/
+
 
 //DONE: Proceder lecciones uniendo los diferentes ciclos para ir practicando y mejorar el glosario de Js en la lógica.
 
@@ -166,7 +166,7 @@ const bloquedos = filtrarBloqueados(ctx);
 console.log(procesarNotificaciones(ctx, bloquedos));
 
 
-
+**/
 //TODO: Profundizar en el reto y aumentar la dificultad
 
 /**
@@ -195,3 +195,53 @@ function reglasPasan(ctx) {
 
 reglasPasan(ctx);
 */
+
+const ctx = {
+  nombre: 'Alice',
+  rol: 'admin', // o 'empleado', 'cliente'
+  estaBloqueado: false,
+  activo: true
+}
+
+const ptx = {
+  nombre: 'ServidorConfidencial',
+  requiereAdmin: true,
+  requiereActivo: true
+}
+
+const roles = {
+  admin: {
+    nombre: 'admin',
+    ignora: []
+  },
+  empleado: {
+    nombre: 'empleado',
+    ignora: ['requiereAdmin']
+  },
+  cliente: {
+    nombre: 'cliente',
+    ignora: ['requiereAdmin', 'requiereActivo']
+  }
+}
+
+const validaciones = {
+    estaBloqueado: {
+        nombre: 'estaBloqueado',
+        validacion: (ctx) => ctx.estaBloqueado,
+        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted se encuentra bloqueado`}),
+    },
+    requiereAdmin: {
+        nombre: 'requiereAdmin',
+        validacion: (ctx, ptx) => ptx.requiereAdmin && ctx.rol !== 'admin',
+        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted requiere tener el rol de admin`}),
+    },
+    requiereActivo: {
+        nombre: 'requiereActivo',
+        validacion: (ctx, ptx) => ptx.requiereActivo && ctx.activo !== true,
+        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted requiere estar activo`}) 
+    }
+}
+
+function obtenerRecursosPermitidos(usuario, recurso) {
+
+}

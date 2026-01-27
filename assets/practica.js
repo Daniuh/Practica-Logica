@@ -198,7 +198,7 @@ reglasPasan(ctx);
 
 const ctx = {
   nombre: 'Alice',
-  rol: 'admin', // o 'empleado', 'cliente'
+  rol: 'cliente', // o 'empleado', 'cliente'
   estaBloqueado: false,
   activo: true
 }
@@ -242,6 +242,36 @@ const validaciones = {
     }
 }
 
-function obtenerRecursosPermitidos(usuario, recurso) {
+function filtrarRol(usuario) {
+    const rolesArray = Object.values(roles);
 
+    for (const rol of rolesArray) {
+        if (rol.nombre == usuario.rol) {
+            return rol.ignora
+        }
+    }
 }
+
+function filtrarValidaciones(arrayIgnora) {
+    const validacion         = Object.values(validaciones);
+    const validacionFiltrada = [];
+
+    for (const validar of validacion) {
+        if (!arrayIgnora.includes(validar.nombre)) {
+             validacionFiltrada.push(validar.nombre);
+        } 
+    }
+    console.log(validacionFiltrada)
+}
+
+function obtenerRecursosPermitidos(usuario, recurso) {
+    const validacionesArray = Object.values(validaciones);
+
+    for (const rol of validacionesArray) {
+        
+    }
+}
+
+const hola = filtrarRol(ctx);
+
+filtrarValidaciones(hola);

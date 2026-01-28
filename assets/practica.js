@@ -299,4 +299,6 @@ const filtrado  = filtrarValidaciones(filtro);
 
 console.log(obtenerRecursosPermitidos(ctx, ptx, filtrado));
 
+//TODO: Empezar a interiorizar en el filter y map para no utilizar tanto los for y object.Values
+
 

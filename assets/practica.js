@@ -198,9 +198,9 @@ reglasPasan(ctx);
 
 const ctx = {
   nombre: 'Alice',
-  rol: 'cliente', // o 'empleado', 'cliente'
+  rol: 'empleado', // o 'empleado', 'cliente'
   estaBloqueado: false,
-  activo: true
+  activo: false
 }
 
 const ptx = {
@@ -228,17 +228,17 @@ const validaciones = {
     estaBloqueado: {
         nombre: 'estaBloqueado',
         validacion: (ctx) => ctx.estaBloqueado,
-        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted se encuentra bloqueado`}),
+        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted se encuentra bloqueado.`}),
     },
     requiereAdmin: {
         nombre: 'requiereAdmin',
         validacion: (ctx, ptx) => ptx.requiereAdmin && ctx.rol !== 'admin',
-        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted requiere tener el rol de admin`}),
+        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted requiere tener el rol de admin.`}),
     },
     requiereActivo: {
         nombre: 'requiereActivo',
         validacion: (ctx, ptx) => ptx.requiereActivo && ctx.activo !== true,
-        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted requiere estar activo`}) 
+        mensaje: (ctx, ptx) => ({recurso: ptx.nombre, permitido: false, motivo: `Lo sentimos ${ctx.nombre}, pero usted requiere estar activo.`})
     }
 }
 
@@ -261,17 +261,42 @@ function filtrarValidaciones(arrayIgnora) {
              validacionFiltrada.push(validar.nombre);
         } 
     }
-    console.log(validacionFiltrada)
+    return validacionFiltrada;
 }
 
-function obtenerRecursosPermitidos(usuario, recurso) {
+function realizarValidaciones(usuario, recurso, validacionesRealizar) {
     const validacionesArray = Object.values(validaciones);
+    const respuesta = [];
 
     for (const rol of validacionesArray) {
-        
+        if (validacionesRealizar.includes(rol.nombre)) {
+           const validacion = rol.validacion(usuario, recurso);
+           const mensaje   = rol.mensaje(usuario, recurso);
+
+           if(validacion) {
+                respuesta.push({respuesta: validacion, mensaje: mensaje});
+                return respuesta;
+           }
+        }
     }
 }
 
-const hola = filtrarRol(ctx);
+function obtenerRecursosPermitidos(usuario, recurso, filtrado) {
+    const validar   = realizarValidaciones(usuario, recurso, filtrado);
+    const respuesta = Object.values(validar);
 
-filtrarValidaciones(hola);
+    for (const r of respuesta) {
+        if (r.respuesta) {
+            return r.mensaje
+        }
+
+        return {recurso: recurso.nombre, permitido: true, motivo: `Acceso permitido, que tenga un buen día ${usuario.nombre}.`};
+    }   
+}
+
+const filtro    = filtrarRol(ctx);
+const filtrado  = filtrarValidaciones(filtro);
+
+console.log(obtenerRecursosPermitidos(ctx, ptx, filtrado));
+
+
